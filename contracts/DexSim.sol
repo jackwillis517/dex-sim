@@ -7,8 +7,8 @@ contract DexSim {
     mapping(address => mapping(string => uint256)) balance;  
 
     constructor() {
-        liquidityPool["Buterins"] = 100;
-        liquidityPool["Nakamotos"] = 10;
+        liquidityPool["Buterins"] = 6;
+        liquidityPool["Nakamotos"] = 2;
     }
   
     function calculateReturn(int amount, string memory tokenTrading) public view returns (int){
@@ -54,13 +54,18 @@ contract DexSim {
         _user = user;
     }
 
+    function addLiquidity(uint256 amountNakamotos, uint256 amountButerins) external {
+        liquidityPool["Nakamotos"] += amountNakamotos;
+        liquidityPool["Buterins"] += amountButerins;
+    }
+
     function fundUser(string memory tokenName, uint256 amount) external {
         balance[_user][tokenName] = amount;
     }
 
     function reset() public {
-        liquidityPool["Buterins"] = 100;
-        liquidityPool["Nakamotos"] = 10;
+        liquidityPool["Buterins"] = 6;
+        liquidityPool["Nakamotos"] = 2;
         balance[_user]["Buterins"] = 0;
         balance[_user]["Nakamotos"] = 0;
     }

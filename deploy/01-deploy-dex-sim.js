@@ -1,6 +1,6 @@
 const { network } = require("hardhat")
 const { verify } = require("../utils/verify")
-//Contract location on Goereli: 0xF87f86a419DfF17357eF25C0Bd53F028aC6B6E7C
+//Contract location on Goereli: 0xDF524A0F7dFF73922Bc193666675CeDEf8B9E908
 
 //hre = hardhat runtime enviroment
 
