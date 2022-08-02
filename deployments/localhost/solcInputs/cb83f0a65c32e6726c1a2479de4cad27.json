@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/DexSim.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.8;\r\n\r\ncontract DexSim {\r\n    address _user;\r\n    mapping(string => uint256) liquidityPool;\r\n    mapping(address => mapping(string => uint256)) balance;  \r\n\r\n    constructor() {\r\n        liquidityPool[\"Buterins\"] = 6;\r\n        liquidityPool[\"Nakamotos\"] = 2;\r\n    }\r\n  \r\n    function calculateReturn(int amount, string memory tokenTrading) public view returns (int){\r\n        int tradeReturn;\r\n        uint bLiquidity = liquidityPool[\"Buterins\"];\r\n        uint nLiquidity = liquidityPool[\"Nakamotos\"];\r\n        int buterinsLiquidity = int(bLiquidity);\r\n        int nakamotosLiquidity = int(nLiquidity);\r\n\r\n        if(keccak256(abi.encodePacked(tokenTrading)) == keccak256(abi.encodePacked(\"Nakamotos\"))) {\r\n            tradeReturn = -1 * (((buterinsLiquidity * nakamotosLiquidity) - ((nakamotosLiquidity + amount) * buterinsLiquidity)) \r\n                     / (nakamotosLiquidity + amount));\r\n        } else {\r\n            tradeReturn = -1 * (((buterinsLiquidity * nakamotosLiquidity) - ((buterinsLiquidity + amount) * nakamotosLiquidity)) \r\n                     / (buterinsLiquidity + amount));\r\n        }\r\n\r\n        return tradeReturn;\r\n    }\r\n\r\n    function swap(string memory tokenTrading, int amount) public returns (int){\r\n        int tradeReturn;\r\n        if(keccak256(abi.encodePacked(tokenTrading)) == keccak256(abi.encodePacked(\"Nakamotos\"))) {\r\n            require(balance[_user][tokenTrading] >= uint(amount), \"Not enough funds!\");\r\n            tradeReturn = calculateReturn(amount, tokenTrading);\r\n            balance[_user][tokenTrading] -= uint(amount);\r\n            balance[_user][\"Buterins\"] += uint(tradeReturn);\r\n            liquidityPool[\"Nakamotos\"] += uint(amount);\r\n            liquidityPool[\"Buterins\"] -= uint(tradeReturn);\r\n        } else {\r\n            require( balance[_user][tokenTrading] >= uint(amount), \"Not enough funds!\");\r\n            tradeReturn = calculateReturn(amount, tokenTrading);\r\n            balance[_user][tokenTrading] -= uint(amount);\r\n            balance[_user][\"Nakamotos\"] += uint(tradeReturn);\r\n            liquidityPool[\"Buterins\"] += uint(amount);\r\n            liquidityPool[\"Nakamotos\"] -= uint(tradeReturn);\r\n        }\r\n\r\n        return tradeReturn;\r\n    }\r\n\r\n    function addUser(address user) external {\r\n        _user = user;\r\n    }\r\n\r\n    function addLiquidity(uint256 amountNakamotos, uint256 amountButerins) external {\r\n        liquidityPool[\"Nakamotos\"] += amountNakamotos;\r\n        liquidityPool[\"Buterins\"] += amountButerins;\r\n    }\r\n\r\n    function fundUser(string memory tokenName, uint256 amount) external {\r\n        balance[_user][tokenName] = amount;\r\n    }\r\n\r\n    function reset() public {\r\n        liquidityPool[\"Buterins\"] = 6;\r\n        liquidityPool[\"Nakamotos\"] = 2;\r\n        balance[_user][\"Buterins\"] = 0;\r\n        balance[_user][\"Nakamotos\"] = 0;\r\n    }\r\n\r\n    function getUserBalance(string memory tokenName) public view returns(uint256){\r\n        return balance[_user][tokenName];\r\n    }\r\n\r\n    function getButerins() external view returns (uint256){\r\n        return liquidityPool[\"Buterins\"];\r\n    }\r\n\r\n    function getNakamotos() external view returns (uint256){\r\n        return liquidityPool[\"Nakamotos\"];\r\n    }\r\n\r\n    function getUser() external view returns (address){\r\n        return _user;\r\n    }\r\n}"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

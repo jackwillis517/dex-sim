@@ -81,4 +81,8 @@ contract DexSim {
     function getNakamotos() external view returns (uint256){
         return liquidityPool["Nakamotos"];
     }
+
+    function getUser() external view returns (address){
+        return _user;
+    }
 }
