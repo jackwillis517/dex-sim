@@ -2,9 +2,9 @@
 pragma solidity ^0.8.8;
 
 contract DexSim {
-    address _user;
-    mapping(string => uint256) liquidityPool;
-    mapping(address => mapping(string => uint256)) balance;  
+    address _user; 
+    mapping(string => uint256) public liquidityPool;
+    mapping(address => mapping(string => uint256)) public balance;  
 
     constructor() {
         liquidityPool["Buterins"] = 6;
@@ -29,49 +29,60 @@ contract DexSim {
         return tradeReturn;
     }
 
-    function swap(string memory tokenTrading, int amount) public returns (int){
+    function swapButerins(int amount) public returns (int){
         int tradeReturn;
-        if(keccak256(abi.encodePacked(tokenTrading)) == keccak256(abi.encodePacked("Nakamotos"))) {
-            require(balance[_user][tokenTrading] >= uint(amount), "Not enough funds!");
-            tradeReturn = calculateReturn(amount, tokenTrading);
-            balance[_user][tokenTrading] -= uint(amount);
-            balance[_user]["Buterins"] += uint(tradeReturn);
-            liquidityPool["Nakamotos"] += uint(amount);
-            liquidityPool["Buterins"] -= uint(tradeReturn);
-        } else {
-            require( balance[_user][tokenTrading] >= uint(amount), "Not enough funds!");
-            tradeReturn = calculateReturn(amount, tokenTrading);
-            balance[_user][tokenTrading] -= uint(amount);
-            balance[_user]["Nakamotos"] += uint(tradeReturn);
-            liquidityPool["Buterins"] += uint(amount);
-            liquidityPool["Nakamotos"] -= uint(tradeReturn);
-        }
-
+        require( balance[_user]["Buterins"] >= uint(amount), "Not enough funds!");
+        tradeReturn = calculateReturn(amount, "Buterins");
+        balance[_user]["Buterins"] -= uint(amount);
+        balance[_user]["Nakamotos"] += uint(tradeReturn);
+        liquidityPool["Buterins"] += uint(amount);
+        liquidityPool["Nakamotos"] -= uint(tradeReturn);
         return tradeReturn;
     }
 
-    function addUser(address user) external {
-        _user = user;
-    }
-
-    function addLiquidity(uint256 amountNakamotos, uint256 amountButerins) external {
-        liquidityPool["Nakamotos"] += amountNakamotos;
-        liquidityPool["Buterins"] += amountButerins;
-    }
-
-    function fundUser(string memory tokenName, uint256 amount) external {
-        balance[_user][tokenName] = amount;
+    function swapNakamotos(int amount) public returns (int){
+        int tradeReturn;
+        require(balance[_user]["Nakamotos"] >= uint(amount), "Not enough funds!");
+        tradeReturn = calculateReturn(amount, "Nakamotos");
+        balance[_user]["Nakamotos"] -= uint(amount);
+        balance[_user]["Buterins"] += uint(tradeReturn);
+        liquidityPool["Nakamotos"] += uint(amount);
+        liquidityPool["Buterins"] -= uint(tradeReturn);
+        return tradeReturn;
     }
 
     function reset() public {
         liquidityPool["Buterins"] = 6;
         liquidityPool["Nakamotos"] = 2;
-        balance[_user]["Buterins"] = 0;
-        balance[_user]["Nakamotos"] = 0;
+        balance[_user]["Buterins"] = 10;
+        balance[_user]["Nakamotos"] = 10;
     }
 
-    function getUserBalance(string memory tokenName) public view returns(uint256){
-        return balance[_user][tokenName];
+    function addLiquidity(uint256 amountNakamotos, uint256 amountButerins) public {
+        liquidityPool["Nakamotos"] += amountNakamotos;
+        liquidityPool["Buterins"] += amountButerins;
+    }
+
+    function addUser() public {
+        _user = msg.sender;
+        balance[_user]["Buterins"] = 10;
+        balance[_user]["Nakamotos"] = 10;
+    }
+
+    function addButerinsToUser(uint256 amount) public {
+        balance[_user]["Buterins"] += amount;
+    }
+
+    function addNakamotosToUser(uint256 amount) public {
+        balance[_user]["Nakamotos"] += amount;
+    }
+
+    function getUserButerinBalance() public view returns(uint256){
+        return balance[_user]["Buterins"];
+    }
+
+    function getUserNakamotosBalance() public view returns(uint256){
+        return balance[_user]["Nakamotos"];
     }
 
     function getButerins() external view returns (uint256){
@@ -80,9 +91,5 @@ contract DexSim {
 
     function getNakamotos() external view returns (uint256){
         return liquidityPool["Nakamotos"];
-    }
-
-    function getUser() external view returns (address){
-        return _user;
     }
 }
