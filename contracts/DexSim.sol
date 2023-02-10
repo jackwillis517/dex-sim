@@ -6,6 +6,11 @@ contract DexSim {
     mapping(string => uint256) public liquidityPool;
     mapping(address => mapping(string => uint256)) public balance;  
 
+    event AddUserLiquidity(address indexed user, uint val);
+    event AddDexLiquidity(uint bAmount, uint nAmount);
+    event Swap(address indexed user);
+    event AddUser(address indexed user);
+
     constructor() {
         liquidityPool["Buterins"] = 6;
         liquidityPool["Nakamotos"] = 2;
@@ -37,6 +42,7 @@ contract DexSim {
         balance[_user]["Nakamotos"] += uint(tradeReturn);
         liquidityPool["Buterins"] += uint(amount);
         liquidityPool["Nakamotos"] -= uint(tradeReturn);
+        emit Swap(_user);
         return tradeReturn;
     }
 
@@ -48,6 +54,7 @@ contract DexSim {
         balance[_user]["Buterins"] += uint(tradeReturn);
         liquidityPool["Nakamotos"] += uint(amount);
         liquidityPool["Buterins"] -= uint(tradeReturn);
+        emit Swap(_user);
         return tradeReturn;
     }
 
@@ -61,20 +68,24 @@ contract DexSim {
     function addLiquidity(uint256 amountNakamotos, uint256 amountButerins) public {
         liquidityPool["Nakamotos"] += amountNakamotos;
         liquidityPool["Buterins"] += amountButerins;
+        emit AddDexLiquidity(amountButerins, amountNakamotos);
     }
 
     function addUser() public {
         _user = msg.sender;
         balance[_user]["Buterins"] = 10;
         balance[_user]["Nakamotos"] = 10;
+        emit AddUser(msg.sender);
     }
 
     function addButerinsToUser(uint256 amount) public {
         balance[_user]["Buterins"] += amount;
+        emit AddUserLiquidity(_user, amount);
     }
 
     function addNakamotosToUser(uint256 amount) public {
         balance[_user]["Nakamotos"] += amount;
+        emit AddUserLiquidity(_user, amount);
     }
 
     function getUserButerinBalance() public view returns(uint256){
